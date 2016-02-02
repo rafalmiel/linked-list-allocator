@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Heap","A fixed size heap backed by a linked list of free memory blocks."]]});

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="generator" content="rustdoc">
+    <meta name="description" content="API documentation for the Rust `Heap` struct in crate `linked_list_allocator`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, Heap">
+
+    <title>linked_list_allocator::Heap - Rust</title>
+
+    <link rel="stylesheet" type="text/css" href="../rustdoc.css">
+    <link rel="stylesheet" type="text/css" href="../main.css">
+
+    
+    
+</head>
+<body class="rustdoc">
+    <!--[if lte IE 8]>
+    <div class="warning">
+        This old browser is unsupported and will most likely display funky
+        things.
+    </div>
+    <![endif]-->
+
+    
+
+    <nav class="sidebar">
+        
+        <p class='location'><a href='index.html'>linked_list_allocator</a></p><script>window.sidebarCurrent = {name: 'Heap', ty: 'struct', relpath: ''};</script><script defer src="sidebar-items.js"></script>
+    </nav>
+
+    <nav class="sub">
+        <form class="search-form js-only">
+            <div class="search-container">
+                <input class="search-input" name="search"
+                       autocomplete="off"
+                       placeholder="Click or press ‘S’ to search, ‘?’ for more options…"
+                       type="search">
+            </div>
+        </form>
+    </nav>
+
+    <section id='main' class="content struct">
+<h1 class='fqn'><span class='in-band'>Struct <a href='index.html'>linked_list_allocator</a>::<wbr><a class='struct' href=''>Heap</a></span><span class='out-of-band'><span id='render-detail'>
+            <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
+                [<span class='inner'>&#x2212;</span>]
+            </a>
+        </span><a id='src-93' class='srclink' href='../src/linked_list_allocator/lib.rs.html#16-20' title='goto source code'>[src]</a></span></h1>
+<pre class='rust struct'>pub struct Heap {
+    // some fields omitted
+}</pre><div class='docblock'><p>A fixed size heap backed by a linked list of free memory blocks.</p>
+</div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../linked_list_allocator/struct.Heap.html' title='linked_list_allocator::Heap'>Heap</a></code></h3><div class='impl-items'><h4 id='method.empty' class='method'><code>const fn <a href='#method.empty' class='fnname'>empty</a>() -&gt; <a class='struct' href='../linked_list_allocator/struct.Heap.html' title='linked_list_allocator::Heap'>Heap</a></code></h4>
+<div class='docblock'><p>Creates an empty heap. All allocate calls will return <code>None</code>.</p>
+</div><h4 id='method.new' class='method'><code>unsafe fn <a href='#method.new' class='fnname'>new</a>(heap_bottom: usize, heap_top: usize) -&gt; <a class='struct' href='../linked_list_allocator/struct.Heap.html' title='linked_list_allocator::Heap'>Heap</a></code></h4>
+<div class='docblock'><p>Creates a new heap with the given <code>bottom</code> and <code>top</code>. Both addresses must be valid and the
+memory in the <code>[heap_bottom, heap_top)</code> range must not be used for anything else. This
+function is unsafe because it can cause undefined behavior if the given addresses are
+invalid.</p>
+</div><h4 id='method.allocate_first_fit' class='method'><code>fn <a href='#method.allocate_first_fit' class='fnname'>allocate_first_fit</a>(&amp;mut self, size: usize, align: usize) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;*mut u8&gt;</code></h4>
+<div class='docblock'><p>Allocates a chunk of the given size with the given alignment. Returns a pointer to the
+beginning of that chunk if it was successful. Else it returns <code>None</code>.
+This function scans the list of free memory blocks and uses the first block that is big
+enough. The runtime is in O(n) where n is the number of free blocks, but it should be
+reasonably fast for small allocations.</p>
+</div><h4 id='method.deallocate' class='method'><code>unsafe fn <a href='#method.deallocate' class='fnname'>deallocate</a>(&amp;mut self, ptr: *mut u8, size: usize, _align: usize)</code></h4>
+<div class='docblock'><p>Frees the given allocation. <code>ptr</code> must be a pointer returned
+by a call to the <code>allocate_first_fit</code> function with identical size and alignment. Undefined
+behavior may occur for invalid arguments, thus this function is unsafe.</p>
+
+<p>This function walks the list of free memory blocks and inserts the freed block at the
+correct place. If the freed block is adjacent to another free block, the blocks are merged
+again. This operation is in <code>O(n)</code> since the list needs to be sorted by address.</p>
+</div><h4 id='method.bottom' class='method'><code>fn <a href='#method.bottom' class='fnname'>bottom</a>(&amp;self) -&gt; usize</code></h4>
+<div class='docblock'><p>Returns the bottom address of the heap.</p>
+</div><h4 id='method.top' class='method'><code>fn <a href='#method.top' class='fnname'>top</a>(&amp;self) -&gt; usize</code></h4>
+<div class='docblock'><p>Returns the top address of the heap.</p>
+</div></div></section>
+    <section id='search' class="content hidden"></section>
+
+    <section class="footer"></section>
+
+    <aside id="help" class="hidden">
+        <div>
+            <h1 class="hidden">Help</h1>
+
+            <div class="shortcuts">
+                <h2>Keyboard Shortcuts</h2>
+
+                <dl>
+                    <dt>?</dt>
+                    <dd>Show this help dialog</dd>
+                    <dt>S</dt>
+                    <dd>Focus the search field</dd>
+                    <dt>&larrb;</dt>
+                    <dd>Move up in search results</dd>
+                    <dt>&rarrb;</dt>
+                    <dd>Move down in search results</dd>
+                    <dt>&#9166;</dt>
+                    <dd>Go to active search result</dd>
+                </dl>
+            </div>
+
+            <div class="infos">
+                <h2>Search Tricks</h2>
+
+                <p>
+                    Prefix searches with a type followed by a colon (e.g.
+                    <code>fn:</code>) to restrict the search to a given type.
+                </p>
+
+                <p>
+                    Accepted types are: <code>fn</code>, <code>mod</code>,
+                    <code>struct</code>, <code>enum</code>,
+                    <code>trait</code>, <code>type</code>, <code>macro</code>,
+                    and <code>const</code>.
+                </p>
+
+                <p>
+                    Search functions by type signature (e.g.
+                    <code>vec -> usize</code>)
+                </p>
+            </div>
+        </div>
+    </aside>
+
+    
+
+    <script>
+        window.rootPath = "../";
+        window.currentCrate = "linked_list_allocator";
+        window.playgroundUrl = "";
+    </script>
+    <script src="../jquery.js"></script>
+    <script src="../main.js"></script>
+    
+    <script defer src="../search-index.js"></script>
+</body>
+</html>
