@@ -4,10 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="generator" content="rustdoc">
-    <meta name="description" content="API documentation for the Rust `linked_list_allocator` crate.">
-    <meta name="keywords" content="rust, rustlang, rust-lang, linked_list_allocator">
+    <meta name="description" content="API documentation for the Rust `align_down` fn in crate `linked_list_allocator`.">
+    <meta name="keywords" content="rust, rustlang, rust-lang, align_down">
 
-    <title>linked_list_allocator - Rust</title>
+    <title>linked_list_allocator::align_down - Rust</title>
 
     <link rel="stylesheet" type="text/css" href="../rustdoc.css">
     <link rel="stylesheet" type="text/css" href="../main.css">
@@ -28,7 +28,7 @@
 
     <nav class="sidebar">
         
-        <p class='location'></p><script>window.sidebarCurrent = {name: 'linked_list_allocator', ty: 'mod', relpath: '../'};</script>
+        <p class='location'><a href='index.html'>linked_list_allocator</a></p><script>window.sidebarCurrent = {name: 'align_down', ty: 'fn', relpath: ''};</script><script defer src="sidebar-items.js"></script>
     </nav>
 
     <nav class="sub">
@@ -42,38 +42,15 @@
         </form>
     </nav>
 
-    <section id='main' class="content mod">
-<h1 class='fqn'><span class='in-band'>Crate <a class='mod' href=''>linked_list_allocator</a></span><span class='out-of-band'><span id='render-detail'>
+    <section id='main' class="content fn">
+<h1 class='fqn'><span class='in-band'>Function <a href='index.html'>linked_list_allocator</a>::<wbr><a class='fn' href=''>align_down</a></span><span class='out-of-band'><span id='render-detail'>
                    <a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">
                        [<span class='inner'>&#x2212;</span>]
                    </a>
-               </span><a id='src-0' class='srclink' href='../src/linked_list_allocator/src/lib.rs.html#1-98' title='goto source code'>[src]</a></span></h1>
-<h2 id='structs' class='section-header'><a href="#structs">Structs</a></h2>
-<table>
-                       <tr class=' module-item'>
-                           <td><a class='struct' href='struct.Heap.html'
-                                  title='linked_list_allocator::Heap'>Heap</a></td>
-                           <td class='docblock short'>
-                                <p>A fixed size heap backed by a linked list of free memory blocks.</p>
-                           </td>
-                       </tr></table><h2 id='functions' class='section-header'><a href="#functions">Functions</a></h2>
-<table>
-                       <tr class=' module-item'>
-                           <td><a class='fn' href='fn.align_down.html'
-                                  title='linked_list_allocator::align_down'>align_down</a></td>
-                           <td class='docblock short'>
-                                <p>Align downwards. Returns the greatest x with alignment <code>align</code>
+               </span><a id='src-119' class='srclink' href='../src/linked_list_allocator/src/lib.rs.html#84-92' title='goto source code'>[src]</a></span></h1>
+<pre class='rust fn'>pub fn align_down(addr: usize, align: usize) -&gt; usize</pre><div class='docblock'><p>Align downwards. Returns the greatest x with alignment <code>align</code>
 so that x &lt;= addr. The alignment must be a power of 2.</p>
-                           </td>
-                       </tr>
-                       <tr class=' module-item'>
-                           <td><a class='fn' href='fn.align_up.html'
-                                  title='linked_list_allocator::align_up'>align_up</a></td>
-                           <td class='docblock short'>
-                                <p>Align upwards. Returns the smallest x with alignment <code>align</code>
-so that x &gt;= addr. The alignment must be a power of 2.</p>
-                           </td>
-                       </tr></table></section>
+</div></section>
     <section id='search' class="content hidden"></section>
 
     <section class="footer"></section>
