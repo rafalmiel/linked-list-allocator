@@ -158,7 +158,7 @@
 <span class='doccomment'>/// A fixed size heap backed by a linked list of free memory blocks.</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>Heap</span> {
     <span class='ident'>bottom</span>: <span class='ident'>usize</span>,
-    <span class='ident'>top</span>: <span class='ident'>usize</span>,
+    <span class='ident'>size</span>: <span class='ident'>usize</span>,
     <span class='ident'>holes</span>: <span class='ident'>HoleList</span>,
 }
 
@@ -166,21 +166,21 @@
     <span class='doccomment'>/// Creates an empty heap. All allocate calls will return `None`.</span>
     <span class='kw'>pub</span> <span class='kw'>const</span> <span class='kw'>fn</span> <span class='ident'>empty</span>() <span class='op'>-&gt;</span> <span class='ident'>Heap</span> {
         <span class='ident'>Heap</span> {
-            <span class='ident'>top</span>: <span class='number'>0</span>,
             <span class='ident'>bottom</span>: <span class='number'>0</span>,
+            <span class='ident'>size</span>: <span class='number'>0</span>,
             <span class='ident'>holes</span>: <span class='ident'>HoleList</span>::<span class='ident'>empty</span>(),
         }
     }
 
-    <span class='doccomment'>/// Creates a new heap with the given `bottom` and `top`. Both addresses must be valid and the</span>
-    <span class='doccomment'>/// memory in the `[heap_bottom, heap_top)` range must not be used for anything else. This</span>
-    <span class='doccomment'>/// function is unsafe because it can cause undefined behavior if the given addresses are</span>
-    <span class='doccomment'>/// invalid.</span>
-    <span class='kw'>pub</span> <span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>heap_bottom</span>: <span class='ident'>usize</span>, <span class='ident'>heap_top</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='ident'>Heap</span> {
+    <span class='doccomment'>/// Creates a new heap with the given `bottom` and `size`. The bottom address must be valid</span>
+    <span class='doccomment'>/// and the memory in the `[heap_bottom, heap_bottom + heap_size)` range must not be used for</span>
+    <span class='doccomment'>/// anything else. This function is unsafe because it can cause undefined behavior if the</span>
+    <span class='doccomment'>/// given address is invalid.</span>
+    <span class='kw'>pub</span> <span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>heap_bottom</span>: <span class='ident'>usize</span>, <span class='ident'>heap_size</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='ident'>Heap</span> {
         <span class='ident'>Heap</span> {
             <span class='ident'>bottom</span>: <span class='ident'>heap_bottom</span>,
-            <span class='ident'>top</span>: <span class='ident'>heap_top</span>,
-            <span class='ident'>holes</span>: <span class='ident'>HoleList</span>::<span class='ident'>new</span>(<span class='ident'>heap_bottom</span>, <span class='ident'>heap_top</span> <span class='op'>-</span> <span class='ident'>heap_bottom</span>),
+            <span class='ident'>size</span>: <span class='ident'>heap_size</span>,
+            <span class='ident'>holes</span>: <span class='ident'>HoleList</span>::<span class='ident'>new</span>(<span class='ident'>heap_bottom</span>, <span class='ident'>heap_size</span>),
         }
     }
 
@@ -216,9 +216,9 @@
         <span class='self'>self</span>.<span class='ident'>bottom</span>
     }
 
-    <span class='doccomment'>/// Returns the top address of the heap.</span>
-    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>top</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>usize</span> {
-        <span class='self'>self</span>.<span class='ident'>top</span>
+    <span class='doccomment'>/// Returns the size of the heap.</span>
+    <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>size</span>(<span class='kw-2'>&amp;</span><span class='self'>self</span>) <span class='op'>-&gt;</span> <span class='ident'>usize</span> {
+        <span class='self'>self</span>.<span class='ident'>size</span>
     }
 }
 

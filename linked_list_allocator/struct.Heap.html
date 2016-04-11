@@ -53,11 +53,11 @@
 }</pre><div class='docblock'><p>A fixed size heap backed by a linked list of free memory blocks.</p>
 </div><h2 id='methods'>Methods</h2><h3 class='impl'><code>impl <a class='struct' href='../linked_list_allocator/struct.Heap.html' title='linked_list_allocator::Heap'>Heap</a></code></h3><div class='impl-items'><h4 id='method.empty' class='method'><code>const fn <a href='#method.empty' class='fnname'>empty</a>() -&gt; <a class='struct' href='../linked_list_allocator/struct.Heap.html' title='linked_list_allocator::Heap'>Heap</a></code></h4>
 <div class='docblock'><p>Creates an empty heap. All allocate calls will return <code>None</code>.</p>
-</div><h4 id='method.new' class='method'><code>unsafe fn <a href='#method.new' class='fnname'>new</a>(heap_bottom: usize, heap_top: usize) -&gt; <a class='struct' href='../linked_list_allocator/struct.Heap.html' title='linked_list_allocator::Heap'>Heap</a></code></h4>
-<div class='docblock'><p>Creates a new heap with the given <code>bottom</code> and <code>top</code>. Both addresses must be valid and the
-memory in the <code>[heap_bottom, heap_top)</code> range must not be used for anything else. This
-function is unsafe because it can cause undefined behavior if the given addresses are
-invalid.</p>
+</div><h4 id='method.new' class='method'><code>unsafe fn <a href='#method.new' class='fnname'>new</a>(heap_bottom: usize, heap_size: usize) -&gt; <a class='struct' href='../linked_list_allocator/struct.Heap.html' title='linked_list_allocator::Heap'>Heap</a></code></h4>
+<div class='docblock'><p>Creates a new heap with the given <code>bottom</code> and <code>size</code>. The bottom address must be valid
+and the memory in the <code>[heap_bottom, heap_bottom + heap_size)</code> range must not be used for
+anything else. This function is unsafe because it can cause undefined behavior if the
+given address is invalid.</p>
 </div><h4 id='method.allocate_first_fit' class='method'><code>fn <a href='#method.allocate_first_fit' class='fnname'>allocate_first_fit</a>(&amp;mut self, size: usize, align: usize) -&gt; <a class='enum' href='https://doc.rust-lang.org/nightly/core/option/enum.Option.html' title='core::option::Option'>Option</a>&lt;*mut u8&gt;</code></h4>
 <div class='docblock'><p>Allocates a chunk of the given size with the given alignment. Returns a pointer to the
 beginning of that chunk if it was successful. Else it returns <code>None</code>.
@@ -74,8 +74,8 @@ correct place. If the freed block is adjacent to another free block, the blocks 
 again. This operation is in <code>O(n)</code> since the list needs to be sorted by address.</p>
 </div><h4 id='method.bottom' class='method'><code>fn <a href='#method.bottom' class='fnname'>bottom</a>(&amp;self) -&gt; usize</code></h4>
 <div class='docblock'><p>Returns the bottom address of the heap.</p>
-</div><h4 id='method.top' class='method'><code>fn <a href='#method.top' class='fnname'>top</a>(&amp;self) -&gt; usize</code></h4>
-<div class='docblock'><p>Returns the top address of the heap.</p>
+</div><h4 id='method.size' class='method'><code>fn <a href='#method.size' class='fnname'>size</a>(&amp;self) -&gt; usize</code></h4>
+<div class='docblock'><p>Returns the size of the heap.</p>
 </div></div></section>
     <section id='search' class="content hidden"></section>
 
