@@ -340,14 +340,11 @@
 <span id="296">296</span>
 <span id="297">297</span>
 <span id="298">298</span>
-<span id="299">299</span>
-<span id="300">300</span>
-<span id="301">301</span>
 </pre><pre class='rust '>
 <span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>ptr</span>::<span class='ident'>Unique</span>;
 <span class='kw'>use</span> <span class='ident'>core</span>::<span class='ident'>mem</span>::{<span class='self'>self</span>, <span class='ident'>size_of</span>};
 
-<span class='kw'>use</span> <span class='ident'>super</span>::<span class='ident'>align_up</span>;
+<span class='kw'>use</span> <span class='kw'>super</span>::<span class='ident'>align_up</span>;
 
 <span class='doccomment'>/// A sorted list of holes. It uses the the holes itself to store its nodes.</span>
 <span class='kw'>pub</span> <span class='kw'>struct</span> <span class='ident'>HoleList</span> {
@@ -369,7 +366,7 @@
     <span class='doccomment'>/// creates a hole at the given `hole_addr`. This can cause undefined behavior if this address</span>
     <span class='doccomment'>/// is invalid or if memory from the `[hole_addr, hole_addr+size) range is used somewhere else.</span>
     <span class='kw'>pub</span> <span class='kw'>unsafe</span> <span class='kw'>fn</span> <span class='ident'>new</span>(<span class='ident'>hole_addr</span>: <span class='ident'>usize</span>, <span class='ident'>hole_size</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='ident'>HoleList</span> {
-        <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>size_of</span>::<span class='op'>&lt;</span><span class='ident'>Hole</span><span class='op'>&gt;</span>() <span class='op'>==</span> <span class='ident'>Self</span>::<span class='ident'>min_size</span>());
+        <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>size_of</span>::<span class='op'>&lt;</span><span class='ident'>Hole</span><span class='op'>&gt;</span>() <span class='op'>==</span> <span class='self'>Self</span>::<span class='ident'>min_size</span>());
 
         <span class='kw'>let</span> <span class='ident'>ptr</span> <span class='op'>=</span> <span class='ident'>hole_addr</span> <span class='kw'>as</span> <span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>Hole</span>;
         <span class='ident'>mem</span>::<span class='ident'>forget</span>(<span class='ident'>mem</span>::<span class='ident'>replace</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='op'>*</span><span class='ident'>ptr</span>,
@@ -392,7 +389,7 @@
     <span class='doccomment'>/// This function uses the “first fit” strategy, so it uses the first hole that is big enough.</span>
     <span class='doccomment'>/// Thus the runtime is in O(n) but it should be reasonably fast for small allocations.</span>
     <span class='kw'>pub</span> <span class='kw'>fn</span> <span class='ident'>allocate_first_fit</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>, <span class='ident'>size</span>: <span class='ident'>usize</span>, <span class='ident'>align</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='op'>*</span><span class='kw-2'>mut</span> <span class='ident'>u8</span><span class='op'>&gt;</span> {
-        <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>size</span> <span class='op'>&gt;=</span> <span class='ident'>Self</span>::<span class='ident'>min_size</span>());
+        <span class='macro'>assert</span><span class='macro'>!</span>(<span class='ident'>size</span> <span class='op'>&gt;=</span> <span class='self'>Self</span>::<span class='ident'>min_size</span>());
 
         <span class='ident'>allocate_first_fit</span>(<span class='kw-2'>&amp;</span><span class='kw-2'>mut</span> <span class='self'>self</span>.<span class='ident'>first</span>, <span class='ident'>size</span>, <span class='ident'>align</span>).<span class='ident'>map</span>(<span class='op'>|</span><span class='ident'>allocation</span><span class='op'>|</span> {
             <span class='kw'>if</span> <span class='kw'>let</span> <span class='prelude-val'>Some</span>(<span class='ident'>padding</span>) <span class='op'>=</span> <span class='ident'>allocation</span>.<span class='ident'>front_padding</span> {
@@ -476,30 +473,27 @@
 <span class='doccomment'>/// padding occurs if the required size is smaller than the size of the aligned hole. All padding</span>
 <span class='doccomment'>/// must be at least `HoleList::min_size()` big or the hole is unusable.</span>
 <span class='kw'>fn</span> <span class='ident'>split_hole</span>(<span class='ident'>hole</span>: <span class='ident'>HoleInfo</span>, <span class='ident'>required_size</span>: <span class='ident'>usize</span>, <span class='ident'>required_align</span>: <span class='ident'>usize</span>) <span class='op'>-&gt;</span> <span class='prelude-ty'>Option</span><span class='op'>&lt;</span><span class='ident'>Allocation</span><span class='op'>&gt;</span> {
+    <span class='kw'>let</span> (<span class='ident'>aligned_addr</span>, <span class='ident'>front_padding</span>) <span class='op'>=</span> <span class='kw'>if</span> <span class='ident'>hole</span>.<span class='ident'>addr</span> <span class='op'>==</span> <span class='ident'>align_up</span>(<span class='ident'>hole</span>.<span class='ident'>addr</span>, <span class='ident'>required_align</span>) {
+        <span class='comment'>// hole has already the required alignment</span>
+        (<span class='ident'>hole</span>.<span class='ident'>addr</span>, <span class='prelude-val'>None</span>)
+    } <span class='kw'>else</span> {
+        <span class='comment'>// the required alignment causes some padding before the allocation</span>
+        <span class='kw'>let</span> <span class='ident'>aligned_addr</span> <span class='op'>=</span> <span class='ident'>align_up</span>(<span class='ident'>hole</span>.<span class='ident'>addr</span> <span class='op'>+</span> <span class='ident'>HoleList</span>::<span class='ident'>min_size</span>(), <span class='ident'>required_align</span>);
+        (<span class='ident'>aligned_addr</span>, <span class='prelude-val'>Some</span>(<span class='ident'>HoleInfo</span> {
+            <span class='ident'>addr</span>: <span class='ident'>hole</span>.<span class='ident'>addr</span>,
+            <span class='ident'>size</span>: <span class='ident'>aligned_addr</span> <span class='op'>-</span> <span class='ident'>hole</span>.<span class='ident'>addr</span>,
+        }))
+    };
+
     <span class='kw'>let</span> <span class='ident'>aligned_hole</span> <span class='op'>=</span> {
-        <span class='kw'>let</span> <span class='ident'>aligned_hole_addr</span> <span class='op'>=</span> <span class='ident'>align_up</span>(<span class='ident'>hole</span>.<span class='ident'>addr</span>, <span class='ident'>required_align</span>);
-        <span class='kw'>if</span> <span class='ident'>aligned_hole_addr</span> <span class='op'>+</span> <span class='ident'>required_size</span> <span class='op'>&gt;</span> <span class='ident'>hole</span>.<span class='ident'>addr</span> <span class='op'>+</span> <span class='ident'>hole</span>.<span class='ident'>size</span> {
+        <span class='kw'>if</span> <span class='ident'>aligned_addr</span> <span class='op'>+</span> <span class='ident'>required_size</span> <span class='op'>&gt;</span> <span class='ident'>hole</span>.<span class='ident'>addr</span> <span class='op'>+</span> <span class='ident'>hole</span>.<span class='ident'>size</span> {
             <span class='comment'>// hole is too small</span>
             <span class='kw'>return</span> <span class='prelude-val'>None</span>;
         }
         <span class='ident'>HoleInfo</span> {
-            <span class='ident'>addr</span>: <span class='ident'>aligned_hole_addr</span>,
-            <span class='ident'>size</span>: <span class='ident'>hole</span>.<span class='ident'>size</span> <span class='op'>-</span> (<span class='ident'>aligned_hole_addr</span> <span class='op'>-</span> <span class='ident'>hole</span>.<span class='ident'>addr</span>),
+            <span class='ident'>addr</span>: <span class='ident'>aligned_addr</span>,
+            <span class='ident'>size</span>: <span class='ident'>hole</span>.<span class='ident'>size</span> <span class='op'>-</span> (<span class='ident'>aligned_addr</span> <span class='op'>-</span> <span class='ident'>hole</span>.<span class='ident'>addr</span>),
         }
-    };
-
-    <span class='kw'>let</span> <span class='ident'>front_padding</span> <span class='op'>=</span> <span class='kw'>if</span> <span class='ident'>aligned_hole</span>.<span class='ident'>addr</span> <span class='op'>==</span> <span class='ident'>hole</span>.<span class='ident'>addr</span> {
-        <span class='comment'>// hole has already the required alignment</span>
-        <span class='prelude-val'>None</span>
-    } <span class='kw'>else</span> <span class='kw'>if</span> <span class='ident'>aligned_hole</span>.<span class='ident'>addr</span> <span class='op'>&lt;</span> <span class='ident'>hole</span>.<span class='ident'>addr</span> <span class='op'>+</span> <span class='ident'>HoleList</span>::<span class='ident'>min_size</span>() {
-        <span class='comment'>// we can&#39;t use this hole because the required padding would create a new, too small hole</span>
-        <span class='kw'>return</span> <span class='prelude-val'>None</span>;
-    } <span class='kw'>else</span> {
-        <span class='comment'>// the required alignment causes some padding before the allocation</span>
-        <span class='prelude-val'>Some</span>(<span class='ident'>HoleInfo</span> {
-            <span class='ident'>addr</span>: <span class='ident'>hole</span>.<span class='ident'>addr</span>,
-            <span class='ident'>size</span>: <span class='ident'>aligned_hole</span>.<span class='ident'>addr</span> <span class='op'>-</span> <span class='ident'>hole</span>.<span class='ident'>addr</span>,
-        })
     };
 
     <span class='kw'>let</span> <span class='ident'>back_padding</span> <span class='op'>=</span> <span class='kw'>if</span> <span class='ident'>aligned_hole</span>.<span class='ident'>size</span> <span class='op'>==</span> <span class='ident'>required_size</span> {
