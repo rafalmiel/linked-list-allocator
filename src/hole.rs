@@ -40,6 +40,16 @@ impl HoleList {
         }
     }
 
+    pub fn extend_last_hole(&mut self, by: usize) {
+        let mut hole: &mut Hole = &mut self.first;
+
+        while !hole.next.is_none() {
+            hole =  move_helper(hole).next_unwrap();
+        }
+
+        hole.size += by;
+    }
+
     /// Searches the list for a big enough hole. A hole is big enough if it can hold an allocation
     /// of `size` bytes with the given `align`. If such a hole is found in the list, a block of the
     /// required size is allocated from it. Then the start address of that block is returned.

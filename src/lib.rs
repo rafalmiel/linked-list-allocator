@@ -17,6 +17,7 @@ mod test;
 pub struct Heap {
     bottom: usize,
     size: usize,
+    max_size: usize,
     holes: HoleList,
 }
 
@@ -26,6 +27,7 @@ impl Heap {
         Heap {
             bottom: 0,
             size: 0,
+            max_size: 0,
             holes: HoleList::empty(),
         }
     }
@@ -36,9 +38,10 @@ impl Heap {
     ///
     /// This function must be called at most once and must only be used on an
     /// empty heap.
-    pub unsafe fn init(&mut self, heap_bottom: usize, heap_size: usize) {
+    pub unsafe fn init(&mut self, heap_bottom: usize, heap_size: usize, heap_max_size: usize) {
         self.bottom = heap_bottom;
         self.size = heap_size;
+        self.max_size = heap_max_size;
         self.holes = HoleList::new(heap_bottom, heap_size);
     }
 
@@ -46,10 +49,11 @@ impl Heap {
     /// and the memory in the `[heap_bottom, heap_bottom + heap_size)` range must not be used for
     /// anything else. This function is unsafe because it can cause undefined behavior if the
     /// given address is invalid.
-    pub unsafe fn new(heap_bottom: usize, heap_size: usize) -> Heap {
+    pub unsafe fn new(heap_bottom: usize, heap_size: usize, heap_max_size: usize) -> Heap {
         Heap {
             bottom: heap_bottom,
             size: heap_size,
+            max_size: heap_max_size,
             holes: HoleList::new(heap_bottom, heap_size),
         }
     }
@@ -92,6 +96,22 @@ impl Heap {
     /// Returns the size of the heap.
     pub fn size(&self) -> usize {
         self.size
+    }
+
+    pub fn max_size(&self) -> usize {
+        self.max_size
+    }
+
+    pub fn top(&self) -> usize {
+        self.bottom + self.size
+    }
+
+    pub fn max_top(&self) -> usize {
+        self.bottom + self.max_size
+    }
+
+    pub fn extend_last_hole(&mut self, by: usize) {
+        self.holes.extend_last_hole(by);
     }
 }
 
