@@ -93,6 +93,23 @@ impl Heap {
     pub fn size(&self) -> usize {
         self.size
     }
+
+    /// Return the top address of the heap
+    pub fn top(&self) -> usize {
+        self.bottom + self.size
+    }
+
+    /// Extends the size of the heap if it won't exceed max_size
+    /// Returns true if the call succeeded
+    ///
+    /// # Unsafety
+    ///
+    /// The new extended area must be valid
+    pub unsafe fn extend(&mut self, by: usize) {
+        let top = self.top();
+        self.holes.deallocate(top as *mut u8, by);
+        self.size += by;
+    }
 }
 
 /// Align downwards. Returns the greatest x with alignment `align`
