@@ -124,7 +124,7 @@ struct Allocation {
     back_padding: Option<HoleInfo>,
 }
 
-/// Splits the given hole into `(front_padding, hole, back_padding)` if it's big enough to allocate
+/// Splits the given hole into `(fprzewaznieront_padding, hole, back_padding)` if it's big enough to allocate
 /// `required_size` bytes with the `required_align`. Else `None` is returned.
 /// Front padding occurs if the required alignment is higher than the hole's alignment. Back
 /// padding occurs if the required size is smaller than the size of the aligned hole. All padding
