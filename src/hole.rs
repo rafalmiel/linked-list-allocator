@@ -2,6 +2,9 @@ use core::ptr::Unique;
 use core::mem::{self, size_of};
 
 use super::align_up;
+use super::log;
+use super::logln;
+use super::logn;
 
 /// A sorted list of holes. It uses the the holes itself to store its nodes.
 pub struct HoleList {
@@ -40,14 +43,48 @@ impl HoleList {
         }
     }
 
-    pub fn extend_last_hole(&mut self, by: usize) {
+    fn append_hole(last: &mut Hole, addr: usize, size: usize) {
+        let ptr = addr as *mut Hole;
+        unsafe {
+
+            mem::forget(mem::replace(&mut *ptr,
+                                     Hole {
+                                         size: size,
+                                         next: None,
+                                     }));
+
+            last.next = Some(Unique::new(ptr));
+        }
+    }
+
+    pub fn extend_last_hole(&mut self, addr: usize, by: usize) {
         let mut hole: &mut Hole = &mut self.first;
 
         while !hole.next.is_none() {
             hole =  move_helper(hole).next_unwrap();
         }
 
-        hole.size += by;
+        if hole.size == 0 || (hole as *const _ as usize) + hole.size != addr {
+            HoleList::append_hole(hole, addr, by);
+        } else {
+            hole.size += by;
+        }
+    }
+
+    pub fn print(&mut self) {
+        unsafe {
+            let mut hole: &mut Hole = &mut self.first;
+
+            logln("DEBUG HEAP:");
+
+            log("HOLE: "); logn(hole as *const _ as usize); log(" size: "); logn(hole.size); logln("");
+
+            while !hole.next.is_none() {
+                hole = move_helper(hole).next_unwrap();
+
+                log("HOLE: "); logn(hole as *const _ as usize); log(" size: "); logn(hole.size); logln("");
+            }
+        }
     }
 
     /// Searches the list for a big enough hole. A hole is big enough if it can hold an allocation

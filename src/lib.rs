@@ -13,6 +13,12 @@ mod hole;
 #[cfg(test)]
 mod test;
 
+extern {
+    fn logln(l: &str);
+    fn log(l: &str);
+    fn logn(n: usize);
+}
+
 /// A fixed size heap backed by a linked list of free memory blocks.
 pub struct Heap {
     bottom: usize,
@@ -30,6 +36,10 @@ impl Heap {
             max_size: 0,
             holes: HoleList::empty(),
         }
+    }
+
+    pub fn print(&mut self) {
+        self.holes.print();
     }
 
     /// Initializes an empty heap
@@ -110,8 +120,9 @@ impl Heap {
         self.bottom + self.max_size
     }
 
-    pub fn extend_last_hole(&mut self, by: usize) {
-        self.holes.extend_last_hole(by);
+    pub fn extend_last_hole(&mut self, addr: usize, by: usize) {
+        self.holes.extend_last_hole(addr, by);
+        self.size += by;
     }
 }
 
