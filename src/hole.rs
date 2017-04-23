@@ -43,18 +43,13 @@ impl HoleList {
         }
     }
 
-    fn append_hole(last: &mut Hole, addr: usize, size: usize) {
-        let ptr = addr as *mut Hole;
-        unsafe {
-
-            mem::forget(mem::replace(&mut *ptr,
-                                     Hole {
-                                         size: size,
-                                         next: None,
-                                     }));
-
-            last.next = Some(Unique::new(ptr));
-        }
+    unsafe fn append_hole(last: &mut Hole, addr: usize, size: usize) {
+        mem::forget(mem::replace(&mut *(addr as *mut Hole),
+                                 Hole {
+                                     size: size,
+                                     next: None,
+                                 }));
+        last.next = Some(Unique::new(addr as *mut Hole));
     }
 
     pub fn extend_last_hole(&mut self, addr: usize, by: usize) {
@@ -65,7 +60,9 @@ impl HoleList {
         }
 
         if hole.size == 0 || (hole as *const _ as usize) + hole.size != addr {
-            HoleList::append_hole(hole, addr, by);
+            unsafe {
+                HoleList::append_hole(hole, addr, by);
+            }
         } else {
             hole.size += by;
         }
