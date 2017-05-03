@@ -15,8 +15,6 @@ mod test;
 
 /// A fixed size heap backed by a linked list of free memory blocks.
 pub struct Heap {
-    bottom: usize,
-    size: usize,
     holes: HoleList,
 }
 
@@ -24,8 +22,6 @@ impl Heap {
     /// Creates an empty heap. All allocate calls will return `None`.
     pub const fn empty() -> Heap {
         Heap {
-            bottom: 0,
-            size: 0,
             holes: HoleList::empty(),
         }
     }
@@ -37,8 +33,6 @@ impl Heap {
     /// This function must be called at most once and must only be used on an
     /// empty heap.
     pub unsafe fn init(&mut self, heap_bottom: usize, heap_size: usize) {
-        self.bottom = heap_bottom;
-        self.size = heap_size;
         self.holes = HoleList::new(heap_bottom, heap_size);
     }
 
@@ -48,8 +42,6 @@ impl Heap {
     /// given address is invalid.
     pub unsafe fn new(heap_bottom: usize, heap_size: usize) -> Heap {
         Heap {
-            bottom: heap_bottom,
-            size: heap_size,
             holes: HoleList::new(heap_bottom, heap_size),
         }
     }
@@ -84,31 +76,14 @@ impl Heap {
         self.holes.deallocate(ptr, size);
     }
 
-    /// Returns the bottom address of the heap.
-    pub fn bottom(&self) -> usize {
-        self.bottom
-    }
-
-    /// Returns the size of the heap.
-    pub fn size(&self) -> usize {
-        self.size
-    }
-
-    /// Return the top address of the heap
-    pub fn top(&self) -> usize {
-        self.bottom + self.size
-    }
-
     /// Extends the size of the heap if it won't exceed max_size
     /// Returns true if the call succeeded
     ///
     /// # Unsafety
     ///
     /// The new extended area must be valid
-    pub unsafe fn extend(&mut self, by: usize) {
-        let top = self.top();
-        self.holes.deallocate(top as *mut u8, by);
-        self.size += by;
+    pub unsafe fn extend(&mut self, addr: *mut u8, by: usize) {
+        self.holes.deallocate(addr, by);
     }
 }
 

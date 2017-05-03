@@ -2,25 +2,57 @@ use std::prelude::v1::*;
 use std::mem::{size_of, align_of};
 use super::*;
 
-fn new_heap() -> Heap {
+struct TestHeap {
+    heap: Heap,
+    bottom: usize,
+    size: usize
+}
+
+impl TestHeap {
+    fn top(&self) -> usize {
+        self.bottom + self.size
+    }
+
+    pub fn size(&self) -> usize {
+        self.size
+    }
+
+    pub fn allocate_first_fit(&mut self, mut size: usize, align: usize) -> Option<*mut u8> {
+        self.heap.allocate_first_fit(size, align)
+    }
+
+    pub unsafe fn deallocate(&mut self, ptr: *mut u8, mut size: usize, _align: usize) {
+        self.heap.deallocate(ptr, size, _align);
+    }
+
+    pub unsafe fn extend(&mut self, by: usize) {
+        let top = self.top();
+        self.heap.deallocate(top as *mut u8, by, 1);
+        self.size += by;
+    }
+}
+
+fn new_heap() -> TestHeap {
     const HEAP_SIZE: usize = 1000;
     let heap_space = Box::into_raw(Box::new([0u8; HEAP_SIZE]));
 
-    let heap = unsafe { Heap::new(heap_space as usize, HEAP_SIZE) };
-    assert!(heap.bottom == heap_space as usize);
-    assert!(heap.size == HEAP_SIZE);
-    heap
+    TestHeap {
+        heap: unsafe { Heap::new(heap_space as usize, HEAP_SIZE) },
+        bottom: heap_space as usize,
+        size: HEAP_SIZE,
+    }
 }
 
-fn new_max_heap() -> Heap {
+fn new_max_heap() -> TestHeap {
     const HEAP_SIZE: usize = 1024;
     const HEAP_SIZE_MAX: usize = 2048;
     let heap_space = Box::into_raw(Box::new([0u8; HEAP_SIZE_MAX]));
 
-    let heap = unsafe { Heap::new(heap_space as usize, HEAP_SIZE) };
-    assert!(heap.bottom == heap_space as usize);
-    assert!(heap.size == HEAP_SIZE);
-    heap
+    TestHeap {
+        heap: unsafe { Heap::new(heap_space as usize, HEAP_SIZE) },
+        bottom: heap_space as usize,
+        size: HEAP_SIZE,
+    }
 }
 
 #[test]
@@ -45,7 +77,7 @@ fn allocate_double_usize() {
     assert!(addr.is_some());
     let addr = addr.unwrap() as usize;
     assert!(addr == heap.bottom);
-    let (hole_addr, hole_size) = heap.holes.first_hole().expect("ERROR: no hole left");
+    let (hole_addr, hole_size) = heap.heap.holes.first_hole().expect("ERROR: no hole left");
     assert!(hole_addr == heap.bottom + size);
     assert!(hole_size == heap.size - size);
 
