@@ -271,17 +271,21 @@ fn deallocate(mut hole: &mut Hole, addr: usize, mut size: usize) {
 
                 // or: this is the last hole
                 // before:  ___XXX_________    where X is this hole
-                // after:   ___XXX__FFFF___    where F is the freed block
-
-                let new_hole = Hole {
-                    size: size,
-                    next: hole.next.take(), // the reference to the Y block (if it exists)
-                };
-                // write the new hole to the freed memory
-                let ptr = addr as *mut Hole;
-                mem::forget(mem::replace(unsafe { &mut *ptr }, new_hole));
-                // add the F block as the next block of the X block
-                hole.next = Some(unsafe { Unique::new(ptr) });
+                if hole_addr + hole.size == addr {
+                    // after:   ___XXXFFFF___    where F is the freed block
+                    hole.size += size;
+                } else {
+                    // after:   ___XXX__FFFF___    where F is the freed block
+                    let new_hole = Hole {
+                        size: size,
+                        next: hole.next.take(), // the reference to the Y block (if it exists)
+                    };
+                    // write the new hole to the freed memory
+                    let ptr = addr as *mut Hole;
+                    mem::forget(mem::replace(unsafe { &mut *ptr }, new_hole));
+                    // add the F block as the next block of the X block
+                    hole.next = Some(unsafe { Unique::new(ptr) });
+                }
             }
         }
         break;
