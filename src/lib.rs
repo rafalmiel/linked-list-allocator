@@ -13,7 +13,7 @@ extern crate alloc;
 
 use alloc::alloc::Layout;
 #[cfg(feature = "alloc_ref")]
-use alloc::alloc::{AllocErr, AllocInit, AllocRef, MemoryBlock};
+use alloc::alloc::{AllocErr, AllocRef};
 #[cfg(feature = "use_spin")]
 use core::alloc::GlobalAlloc;
 use core::mem;
@@ -158,20 +158,17 @@ impl Heap {
 
 #[cfg(feature = "alloc_ref")]
 unsafe impl AllocRef for Heap {
-    fn alloc(&mut self, layout: Layout, init: AllocInit) -> Result<MemoryBlock, AllocErr> {
+    fn alloc(&mut self, layout: Layout) -> Result<NonNull<[u8]>, AllocErr> {
         if layout.size() == 0 {
-            return Ok(MemoryBlock {
-                ptr: layout.dangling(),
-                size: 0,
-            });
+            return Ok(NonNull::from(unsafe {
+                core::slice::from_raw_parts(layout.dangling().as_ptr(), layout.size())
+            }));
         }
         match self.allocate_first_fit(layout) {
             Ok(ptr) => {
-                let block = MemoryBlock {
-                    ptr,
-                    size: layout.size(),
-                };
-                unsafe { init.init(block) };
+                let block = NonNull::from(unsafe {
+                    core::slice::from_raw_parts(ptr.as_ptr(), layout.size())
+                });
                 Ok(block)
             }
             Err(()) => Err(AllocErr),

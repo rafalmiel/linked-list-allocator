@@ -12,7 +12,7 @@ documentation = "https://docs.rs/crate/linked_list_allocator"
 homepage = "http://os.phil-opp.com/kernel-heap.html#a-better-allocator"
 
 [features]
-default = ["use_spin"]
+default = ["use_spin", "alloc_ref"]
 use_spin = ["spinning_top"]
 alloc_ref = []
 
