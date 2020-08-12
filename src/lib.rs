@@ -1,5 +1,5 @@
 #![feature(const_fn)]
-#![cfg_attr(feature = "alloc_ref", feature(allocator_api, alloc_layout_extra))]
+#![cfg_attr(feature = "alloc_ref", feature(allocator_api, alloc_layout_extra, nonnull_slice_from_raw_parts))]
 #![no_std]
 
 #[cfg(test)]
@@ -160,16 +160,11 @@ impl Heap {
 unsafe impl AllocRef for Heap {
     fn alloc(&mut self, layout: Layout) -> Result<NonNull<[u8]>, AllocErr> {
         if layout.size() == 0 {
-            return Ok(NonNull::from(unsafe {
-                core::slice::from_raw_parts(layout.dangling().as_ptr(), layout.size())
-            }));
+            return Ok(NonNull::slice_from_raw_parts(layout.dangling(), 0));
         }
         match self.allocate_first_fit(layout) {
             Ok(ptr) => {
-                let block = NonNull::from(unsafe {
-                    core::slice::from_raw_parts(ptr.as_ptr(), layout.size())
-                });
-                Ok(block)
+                Ok(NonNull::slice_from_raw_parts(ptr, layout.size()))
             }
             Err(()) => Err(AllocErr),
         }
